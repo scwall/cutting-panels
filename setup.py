@@ -1,9 +1,10 @@
 import sys
+
 from cx_Freeze import setup, Executable
 
 path = sys.path
 # Dependencies are automatically detected, but it might need fine tuning.
-build_exe_options = {"packages": ["os", "re",  "tkinter"],
+build_exe_options = {"packages": ["os", "re", "tkinter"],
                      "include_files": ["packages"],
                      "path": path, "optimize": 2}
 
@@ -12,7 +13,6 @@ build_exe_options = {"packages": ["os", "re",  "tkinter"],
 base = None
 icone = None
 if sys.platform == "win32":
-    icone = "icone.ico"
     base = "Win32GUI"
 
 setup(name="cutting backboard.py",
