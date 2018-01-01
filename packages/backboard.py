@@ -1,5 +1,5 @@
 class Backboard():
-    def __init__(self, longueur, largeur):
+    def __init__(self, longueur=None,largeur=None):
         self.longueur = longueur
         self.largeur = largeur
         self.reste_longueur = ""
@@ -11,11 +11,11 @@ class Backboard():
 
     @property
     def get_longueur(self):
-        return self.longueur
+        return int(self.longueur)
 
     @property
     def get_largeur(self):
-        return self.largeur
+        return int(self.largeur)
 
     def set_longueur(self, longueur):
         self.longueur = longueur
