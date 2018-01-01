@@ -23,7 +23,7 @@ def validation():
     nettoyage_str = []
     list_clean = []
     for list_box_value in listbox.get(0,END):
-        for list_map in map(int, re.findall(r'\d+', list_box_value)):
+        for list_map in map(float, re.findall(r'-?[0-9]+(?:\.[0-9]*)?|-?\.[0-9]+', list_box_value)):
 
             nettoyage_str.append(list_map)
         list_clean.append(nettoyage_str[:])

@@ -11,11 +11,11 @@ class Backboard():
 
     @property
     def get_longueur(self):
-        return int(self.longueur)
+        return float(self.longueur)
 
     @property
     def get_largeur(self):
-        return int(self.largeur)
+        return float(self.largeur)
 
     def set_longueur(self, longueur):
         self.longueur = longueur
