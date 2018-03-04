@@ -1,100 +1,88 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from packages.backboard import Backboard
-from packages.cut_backboard import Cut_backboard
-from tkinter import *
-import re
-fenetre = Tk()
-backboard = ""
-
-def recupere_mesure():
-    if valueLargeur.get() != "" and valueLongueur.get() != "":
-        test = " longueur " + valueLongueur.get() + " cm " + " largeur " + valueLargeur.get() + " cm "
-        listbox.insert(END, test)
-
-def taille_panneau():
-    global backboard
-    backboard = Backboard(TaillePanneauvalueLongueur.get(), TaillePanneauvalueLargeur.get())
-    affichageTailleDuPanneau.config(text=backboard.taille_panneau)
+import tkinter as tk
 
 
-def validation():
-    cutBackBoard = Cut_backboard(backboard)
-    nettoyage_str = []
-    list_clean = []
-    for list_box_value in listbox.get(0,END):
-        for list_map in map(float, re.findall(r'-?[0-9]+(?:\.[0-9]*)?|-?\.[0-9]+', list_box_value)):
-
-            nettoyage_str.append(list_map)
-        list_clean.append(nettoyage_str[:])
-        nettoyage_str = []
-
-    list_clean.sort(reverse=True)
-    for i in list_clean:
-        coupe ="coupe :" + str(cutBackBoard.calcul_coupe(*i)) +" morceau(x)"
-        listboxx.insert(END,coupe)
-        cutBackBoard.reste_coupe()
-        reste = "reste :" + " largeur : " + str(cutBackBoard.backboard.get_largeur) +" cm" + " longueur : " + str(cutBackBoard.backboard.get_longueur) + " cm"
-        listboxx.insert(END,reste)
+class CanvasPanel(tk.Frame):
+    def __init__(self, parent, *args, **kwargs):
+        tk.Frame.__init__(self, parent, *args, **kwargs)
+        self.taillePanneau = tk.LabelFrame(parent)
+        self.taillePanneau.pack(fill="both", expand="yes")
+        self.test = ""
+        self.affichageTailleDuPanneau = tk.Label(self.taillePanneau, text='')
+        self.affichageTailleDuPanneau.pack(side='top')
+        self.canvas = tk.Canvas(self.taillePanneau, width=400, height=200, background='brown')
+        self.canvas.pack()
 
 
+class SizePanelHeightWidth(tk.Frame):
+    def __init__(self, parent, canvas_panel, *args, **kwargs):
+        self.canvas_panel = canvas_panel
+        tk.Frame.__init__(self, parent, *args, **kwargs)
+        self.box = tk.LabelFrame(parent, text="Taille de la planche")
+        self.box.pack(fill="both", expand="yes")
+        self.taillePanneauLongueurFrame = tk.LabelFrame(self.box, text="longueur", padx=2, pady=2)
+        self.taillePanneauLongueurFrame.pack()
+        self.taillePanneauLargeurFrame = tk.LabelFrame(self.box, text="largeur", padx=2, pady=2)
+        self.taillePanneauLargeurFrame.pack()
+        self.TaillePanneauvalueLongueur = tk.StringVar()
+        self.TaillePanneauvalueLargeur = tk.StringVar()
+        self.TaillePanneauentree = tk.Entry(self.taillePanneauLongueurFrame,
+                                            textvariable=self.TaillePanneauvalueLongueur, width=30)
+        self.TaillePanneauentree.pack()
+        self.TaillePanneauentree = tk.Entry(self.taillePanneauLargeurFrame, textvariable=self.TaillePanneauvalueLargeur,
+                                            width=30)
+        self.TaillePanneauentree.pack()
+        bouton = tk.Button(self.box, text="Valider", command=self.taille_panneau)
+        bouton.pack()
 
-## taille panneau
-taillePanneau = LabelFrame(fenetre, text="taille du panneau", padx=2, pady=2)
-taillePanneau.pack(fill="both", expand="yes")
-test = ""
-affichageTailleDuPanneau = Label(taillePanneau, text=test)
-affichageTailleDuPanneau.pack(side=TOP)
-canvas = Canvas(taillePanneau, width=400, height=200, background='brown')
-
-canvas.pack()
-
-taillePanneauLongueurFrame = LabelFrame(taillePanneau, text="longueur", padx=2, pady=2)
-taillePanneauLongueurFrame.pack()
-taillePanneauLargeurFrame = LabelFrame(taillePanneau, text="largeur", padx=2, pady=2)
-taillePanneauLargeurFrame.pack()
-
-TaillePanneauvalueLongueur = StringVar()
-TaillePanneauvalueLargeur = StringVar()
-TaillePanneauentree = Entry(taillePanneauLongueurFrame, textvariable=TaillePanneauvalueLongueur, width=30)
-TaillePanneauentree.pack()
-TaillePanneauentree = Entry(taillePanneauLargeurFrame, textvariable=TaillePanneauvalueLargeur, width=30)
-TaillePanneauentree.pack()
-
-bouton = Button(taillePanneau, text="Valider", command=taille_panneau)
-
-bouton.pack()
-
-## Taille coupe
+    def taille_panneau(self):
+        self.size_print = "largeur " + str(self.TaillePanneauvalueLargeur.get()) + " cm " + " longueur " + str(
+            self.TaillePanneauvalueLongueur.get()) + " cm "
+        self.canvas_panel.affichageTailleDuPanneau.config(text=self.size_print)
 
 
-tailleCoupe = LabelFrame(fenetre, text="taille des coupes", padx=2, pady=2)
-tailleCoupe.pack(fill="both", expand="yes")
-longueurFrame = LabelFrame(tailleCoupe, text="longueur", padx=2, pady=2)
-longueurFrame.pack()
-largeurFrame = LabelFrame(tailleCoupe, text="largeur", padx=2, pady=2)
-largeurFrame.pack()
+class CutSizePanel(tk.Frame):
+    def __init__(self, parent, *args, **kwargs):
+        tk.Frame.__init__(self, parent, *args, **kwargs)
+        self.box = tk.LabelFrame(parent, text="taille des coupes")
+        self.box.pack(fill="both", expand="yes")
 
-valueLongueur = StringVar()
+        self.longueurFrame = tk.LabelFrame(self.box, text="longueur", padx=2, pady=2)
+        self.longueurFrame.pack()
+        self.largeurFrame = tk.LabelFrame(self.box, text="largeur", padx=2, pady=2)
+        self.largeurFrame.pack()
+        self.valueLongueur = tk.StringVar()
+        self.valueLargeur = tk.StringVar()
 
-valueLargeur = StringVar()
+        self.entree = tk.Entry(self.longueurFrame, textvariable=self.valueLongueur, width=30)
+        self.entree.pack()
+        self.entree = tk.Entry(self.largeurFrame, textvariable=self.valueLargeur, width=30)
+        self.entree.pack()
 
-entree = Entry(longueurFrame, textvariable=valueLongueur, width=30)
-entree.pack()
-entree = Entry(largeurFrame, textvariable=valueLargeur, width=30)
-entree.pack()
-bouton = Button(tailleCoupe, text="Ajouter", command=recupere_mesure)
-bouton.pack()
-listbox = Listbox(tailleCoupe)
-listbox.pack(fill="both", expand="yes")
-boutonn = Button(tailleCoupe, text="Valider", command=validation)
-boutonn.pack()
+        self.listbox = tk.Listbox(self.box)
+        self.bouton = tk.Button(self.box, text="Ajouter", command=self.recupere_mesure)
+        self.bouton.pack()
+        self.listbox.pack(fill="both", expand="yes")
+        self.boutonn = tk.Button(self.box, text="Valider", command='validation')
+        self.boutonn.pack()
 
-coupePossible = LabelFrame(fenetre, text="coupe possible", padx=20, pady=20)
-coupePossible.pack(fill="both", expand="yes")
-listboxx = Listbox(coupePossible)
-listboxx.pack(fill="both", expand="yes")
+    def recupere_mesure(self):
+        if self.valueLargeur.get() != "" and self.valueLongueur.get() != "":
+            test = " longueur " + self.valueLongueur.get() + " cm " + " largeur " + self.valueLargeur.get() + " cm "
+            self.listbox.insert('end', test)
+
+class MainApplication(tk.Frame):
+    def __init__(self, parent):
+
+        tk.Frame.__init__(self, parent, width=768, height=576)
+        self.parent = parent
+        self.canvas_panel = CanvasPanel(self)
+        self.canvas_panel.pack(fill="y", expand="yes")
+        self.size_panel_height_width = SizePanelHeightWidth(self, self.canvas_panel)
+        self.size_panel_height_width.pack()
+        self.cut_size_panel = CutSizePanel(self)
 
 
-
-fenetre.mainloop()
+if __name__ == "__main__":
+    root = tk.Tk()
+    MainApplication(root).pack()
+    root.mainloop()
